@@ -1,0 +1,35 @@
+import java.util.*
+import javax.mail.Session
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
+
+class AliyunEmail(
+    private val senderAddress: String, private val recipientAddress: String,
+    private val senderPassword: String,
+    private val title: String, val HTML: String
+) {
+    fun send() {
+        val props = Properties()
+        props["mail.smtp.auth"] = "true"
+        props["mail.transport.protocol"] = "smtp"
+        props["mail.smtp.host"] = "smtpdm.aliyun.com"
+        props["mail.smtp.port"] = "25"
+
+        val session = Session.getInstance(props)
+        session.debug = false
+
+        val msg = MimeMessage(session)
+        msg.setFrom(InternetAddress(senderAddress))
+        msg.setRecipients(MimeMessage.RecipientType.TO, recipientAddress)
+        msg.setSubject(title, "UTF-8")
+        msg.setContent(HTML, "text/html;charset=UTF-8")
+        msg.sentDate = Date()
+
+        val transport = session.transport
+        transport.connect(senderAddress, senderPassword)
+        transport.sendMessage(msg, msg.allRecipients)
+        transport.close()
+    }
+}
+
+
